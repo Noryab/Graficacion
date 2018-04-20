@@ -494,8 +494,8 @@ Line::Line(QPainter &painter, int Widht, QRgb Edge)
     painter.setPen(colorPoint);
     Buffer_Z=MatrixXd::Zero(1000,1000);
 
-    textura.load("/home/noryab/QT/Proyecto_1/P_V2/texturaConejo.jpg");
-    //textura.load("/home/noryab/QT/Proyecto_1/P_V2/textura2.jpg");
+    textura.load("/home/noryab/Graficacion/QT/Proyecto_1/P_V2/texturaConejo.jpg");
+    //textura.load("/home/noryab/Graficacion/QT/Proyecto_1/P_V2/textura2.jpg");
     texW = textura.width();
     texH = textura.height();
 

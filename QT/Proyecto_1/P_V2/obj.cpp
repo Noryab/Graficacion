@@ -21,7 +21,7 @@ ModeloOBJ::ModeloOBJ(){
 
 void ModeloOBJ::cargarModelo(const char *path)
 {
-   ifstream file("/home/noryab/QT/Proyecto_1/P_V2/bunny.obj");
+   ifstream file("/home/noryab/Graficacion/QT/Proyecto_1/P_V2/bunny.obj");
 
     string str;
     int vNum = 0;
