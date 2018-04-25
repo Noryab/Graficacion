@@ -23,6 +23,7 @@ class renderObj:public QGLWidget
         void paintGL();
         void resizeGL(int w,int h);
         void RenderObj();
+        void OpenTextura();
 
         bool RecalMatri;
         bool Gouraud;
@@ -34,6 +35,8 @@ class renderObj:public QGLWidget
         float Angle_X,Angle_Y,Angle_Z;
         bool BoolRot;
 
+        GLuint texture[8]; //Para almacenar las posibles texturas
+        QImage img[3];
         ModeloOBJ M_Obj;
 
 

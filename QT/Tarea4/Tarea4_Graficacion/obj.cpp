@@ -22,6 +22,8 @@ ModeloOBJ::ModeloOBJ(){
 void ModeloOBJ::cargarModelo(const char *path)
 {
    ifstream file("/home/noryab/Graficacion/QT/Tarea4/Tarea4_Graficacion/bunny.obj");
+   //ifstream file("/home/noryab/Graficacion/QT/Tarea4/Tarea4_Graficacion/dragon.obj");
+   //ifstream file("/home/noryab/Graficacion/QT/Tarea4/Tarea4_Graficacion/tyra.obj");
 
     string str;
     int vNum = 0;
