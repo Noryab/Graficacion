@@ -38,33 +38,26 @@ class ModeloOBJ{
         void NormalesCarasW();
         void NormalesCarasC();
 
-        vector<QVector3D> modeloVerticesW;
-        vector<QVector3D> modeloVerticesC;
-        vector<QVector2D> modeloVerticesP;
+        vector<QVector3D> modeloVertxW;
+        vector<QVector3D> modeloVertxC;
+        vector<QVector2D> modeloVertxP;
 
         vector<QVector3D> modeloCaras;
         vector<QVector3D> modeloNormalesVW; /// Normales por vertice en el mundo
         vector<QVector3D> modeloNormalesVC; /// Normales por vertice en la camara
         vector<QVector3D> modeloNormalesFW; /// Normales por Cara en el mundo
         vector<QVector3D> modeloNormalesFC; /// Normales por Cara en la camara
-        QVector3D ModeloRGB_A;
-        QVector3D ModeloRGB_D;
-        QVector3D ModeloRGB_E;
 
     private:
 
-        int NumCaras,NumVertices;
-        int r,g,b; 	//Componentes de color
-        double ka; 	//Coeficiente de reflexión ambiental
-        double kd; 	//Coeficiente de reflexión difusa
-        double ks; 	//Coeficiente de reflexión especular
+       long  int NumCaras,NumVertx;
         float Theta;
         float Phi;
         float Alpha;
 
     public:
         int getNC(){ return NumCaras; }
-        int getNV(){ return NumVertices; }
+        int getNV(){ return NumVertx; }
 
 
 

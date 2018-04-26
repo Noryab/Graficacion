@@ -13,22 +13,18 @@
 
 using namespace std;
 
-ModeloOBJ::ModeloOBJ(){
-    ModeloRGB_A =QVector3D(0.1,0.1,0.1);
-    ModeloRGB_D =QVector3D(0.1,0.1,0.1);
-    ModeloRGB_E =QVector3D(0.1,0.1,0.1);
+ModeloOBJ::ModeloOBJ()
+{
 }
 
 void ModeloOBJ::cargarModelo(const char *path)
 {
    ifstream file("/home/noryab/Graficacion/QT/Tarea4/Tarea4_Graficacion/bunny.obj");
-   //ifstream file("/home/noryab/Graficacion/QT/Tarea4/Tarea4_Graficacion/dragon.obj");
-   //ifstream file("/home/noryab/Graficacion/QT/Tarea4/Tarea4_Graficacion/tyra.obj");
 
     string str;
-    int vNum = 0;
-    int vnNum = 0;
-    int fNum = 0;
+    long int vNum = 0;
+    long int vnNum = 0;
+    long int fNum = 0;
 
     double X,Y,Z;
     vector<string> v;
@@ -36,7 +32,7 @@ void ModeloOBJ::cargarModelo(const char *path)
     while (getline(file, str)){
         if(str.length()==0){
             continue;
-        }else if(str[0] == 'v' && str[1] == 'n' ){//Vertices normalizados
+        }else if(str[0] == 'v' && str[1] == 'n' ){//Vertx normalizados
             split(str,v,' ');
             X = atof(v[1].c_str());
             Y = atof(v[2].c_str());
@@ -44,13 +40,13 @@ void ModeloOBJ::cargarModelo(const char *path)
             //cout<<"VNX:"<<X<<" VNY:"<<Y<<" VNZ:"<<Z<<endl;
             modeloNormalesVW.push_back(QVector3D(X,Y,Z));
             vnNum++;
-        }else if( str[0] == 'v' && str[1] != 't'){//vertices
+        }else if( str[0] == 'v' && str[1] != 't'){//Vertx
             split(str,v,' ');
             X = atof(v[1].c_str());
             Y = atof(v[2].c_str());
             Z = atof(v[3].c_str());
             //cout<<"VX:"<<X<<" VY:"<<Y<<" VZ:"<<Z<<endl;
-            modeloVerticesW.push_back(QVector3D(X,Y,Z));
+            modeloVertxW.push_back(QVector3D(X,Y,Z));
             vNum++;
         }else if(str[0] == 'f'){
             split(str,v,' ');
@@ -63,7 +59,7 @@ void ModeloOBJ::cargarModelo(const char *path)
         }
     }
     NumCaras = fNum;
-    NumVertices = vNum;
+    NumVertx = vNum;
 }
 
 int ModeloOBJ::split(const std::string &txt, std::vector<std::string> &strs, char ch)
@@ -89,12 +85,12 @@ void ModeloOBJ::RotateX(float _Theta)
     float sinTheta = sin((Theta-_Theta)*PI/180);
     float cosTheta = cos((Theta-_Theta)*PI/180);
     Theta=_Theta;
-    for (int n=0; n<NumVertices; n++) {
-        QVector3D node = modeloVerticesW[n];
+    for (int n=0; n<NumVertx; n++) {
+        QVector3D node = modeloVertxW[n];
         float y = node.y();
         float z = node.z();
-        modeloVerticesW[n].setY(y*cosTheta - z*sinTheta);
-        modeloVerticesW[n].setZ(z*cosTheta + y*sinTheta);
+        modeloVertxW[n].setY(y*cosTheta - z*sinTheta);
+        modeloVertxW[n].setZ(z*cosTheta + y*sinTheta);
 
     }
 }
@@ -105,12 +101,12 @@ void ModeloOBJ::RotateY(float _Phi)
     float sinPhi = sin((Phi-_Phi)*PI/180);
     float cosPhi = cos((Phi-_Phi)*PI/180);
     Phi=_Phi;
-    for (int n=0; n<NumVertices; n++) {
-        QVector3D node = modeloVerticesW[n];
+    for (int n=0; n<NumVertx; n++) {
+        QVector3D node = modeloVertxW[n];
         float x = node.x();
         float z = node.z();
-        modeloVerticesW[n].setX(x*cosPhi - z*sinPhi);
-        modeloVerticesW[n].setZ(z*cosPhi + x*sinPhi);
+        modeloVertxW[n].setX(x*cosPhi - z*sinPhi);
+        modeloVertxW[n].setZ(z*cosPhi + x*sinPhi);
     }
 }
 
@@ -121,12 +117,12 @@ void ModeloOBJ::RotateZ(float _Alpha)
     double cosAlpha = cos((Alpha-_Alpha)*PI/180);
     Alpha=_Alpha;
 
-    for (int n=0; n<NumVertices; n++) {
-        QVector3D node = modeloVerticesW[n];
+    for (int n=0; n<NumVertx; n++) {
+        QVector3D node = modeloVertxW[n];
         double x = node.x();
         double y = node.y();
-        modeloVerticesW[n].setX(x*cosAlpha - y*sinAlpha);
-        modeloVerticesW[n].setY(y*cosAlpha + x*sinAlpha);
+        modeloVertxW[n].setX(x*cosAlpha - y*sinAlpha);
+        modeloVertxW[n].setY(y*cosAlpha + x*sinAlpha);
     }
 }
 

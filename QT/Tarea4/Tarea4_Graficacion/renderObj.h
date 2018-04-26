@@ -21,22 +21,23 @@ class renderObj:public QGLWidget
         ~renderObj();
         void initializeGL();
         void paintGL();
-        void resizeGL(int w,int h);
+        void resizeGL(int widht, int height);
         void RenderObj();
-        void OpenTextura();
+        void OpenTexture();
 
         bool RecalMatri;
         bool Gouraud;
         bool Phong;
         bool Poligon;
-        bool Textura;
+        bool Texture;
         bool Mall;
         bool Punt;
         float Angle_X,Angle_Y,Angle_Z;
         bool BoolRot;
+        int numTexture;
 
-        GLuint texture[8]; //Para almacenar las posibles texturas
-        QImage img[3];
+        GLuint texture[8];
+        QImage imag[5];
         ModeloOBJ M_Obj;
 
 
@@ -44,11 +45,6 @@ class renderObj:public QGLWidget
         QVector3D camOrig;
         QVector3D qPoint;
         float theta;
-
-        MatrixXd VQ;
-        MatrixXd VQq;
-
-
 
 };
 

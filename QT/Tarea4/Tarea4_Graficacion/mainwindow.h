@@ -30,6 +30,7 @@ class MainWindow : public QMainWindow
         void RotateX(int AngleX);
         void RotateY(int AngleY);
         void RotateZ(int AngleZ);
+        void ChooseTextura(int numTexture);
 
         void Gouraud();
         void Phong();

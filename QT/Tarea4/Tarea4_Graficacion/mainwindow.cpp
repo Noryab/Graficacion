@@ -25,6 +25,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainWin
 
 
 // *** Eventos de la interfaz ***//
+void MainWindow::ChooseTextura(int numTexture)
+{
+    ui->widget->numTexture=numTexture;
+    ui->widget->updateGL();
+
+}
+
 void MainWindow::RotateX(int AngleX){
     ui->widget->Angle_X=(float)AngleX;
     ui->widget->BoolRot=true;
@@ -50,7 +57,7 @@ void MainWindow::Gouraud()
     ui->widget->Poligon=false;
     ui->widget->Mall=false;
     ui->widget->Punt=false;
-    ui->widget->Textura=false;
+    ui->widget->Texture=false;
     ui->widget->updateGL();
 
 }
@@ -61,7 +68,7 @@ void MainWindow::Phong()
     ui->widget->Poligon=false;
     ui->widget->Mall=false;
     ui->widget->Punt=false;
-    ui->widget->Textura=false;
+    ui->widget->Texture=false;
     ui->widget->updateGL();
 
 }
@@ -72,7 +79,7 @@ void MainWindow::Poligonos()
     ui->widget->Poligon=true;
     ui->widget->Mall=false;
     ui->widget->Punt=false;
-    ui->widget->Textura=false;
+    ui->widget->Texture=false;
     ui->widget->updateGL();
 }
 
@@ -83,7 +90,7 @@ void MainWindow::Mallas()
     ui->widget->Poligon=false;
     ui->widget->Mall=true;
     ui->widget->Punt=false;
-    ui->widget->Textura=false;
+    ui->widget->Texture=false;
     ui->widget->updateGL();
 }
 
@@ -95,7 +102,7 @@ void MainWindow::Puntos()
     ui->widget->Poligon=false;
     ui->widget->Mall=false;
     ui->widget->Punt=true;
-    ui->widget->Textura=false;
+    ui->widget->Texture=false;
     ui->widget->updateGL();
 }
 
@@ -107,7 +114,7 @@ void MainWindow::Textura()
     ui->widget->Poligon=false;
     ui->widget->Mall=false;
     ui->widget->Punt=false;
-    ui->widget->Textura=true;
+    ui->widget->Texture=true;
     ui->widget->updateGL();
 
 }

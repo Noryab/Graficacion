@@ -25,18 +25,21 @@ renderObj::~renderObj()
 
 }
 
-void renderObj::OpenTextura()
+void renderObj::OpenTexture()
 {
-    img[0].load("/home/noryab/Graficacion/QT/Tarea4/Tarea4_Graficacion/texturaConejoG.jpg");
-    img[1].load("/home/noryab/Graficacion/QT/Tarea4/Tarea4_Graficacion/Conejo.jpg");
-    img[2].load("/home/noryab/Graficacion/QT/Tarea4/Tarea4_Graficacion/textura2.jpg");
+    imag[0].load("/home/noryab/Graficacion/QT/Tarea4/Tarea4_Graficacion/texturaConejoG.jpg");
+    imag[1].load("/home/noryab/Graficacion/QT/Tarea4/Tarea4_Graficacion/Conejo.jpg");
+    imag[2].load("/home/noryab/Graficacion/QT/Tarea4/Tarea4_Graficacion/textura2.jpg");
+    imag[3].load("/home/noryab/Graficacion/QT/Tarea4/Tarea4_Graficacion/texturaConejo.jpg");
+    imag[4].load("/home/noryab/Graficacion/QT/Tarea4/Tarea4_Graficacion/Piel.jpg");
+    imag[5].load("/home/noryab/Graficacion/QT/Tarea4/Tarea4_Graficacion/textura.jpg");
 
-    for(int i=0;i<3;i++)
+    for(int i=0;i<6;i++)
     {
-        QImage t = QGLWidget::convertToGLFormat(img[i]);
+        QImage imageTexture = QGLWidget::convertToGLFormat(imag[i]);
         glGenTextures(1, &texture[i]);
         glBindTexture(GL_TEXTURE_2D, texture[i]);
-        glTexImage2D(GL_TEXTURE_2D, 0, 3, t.width(), t.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, t.bits());
+        glTexImage2D(GL_TEXTURE_2D, 0, 3, imageTexture.width(), imageTexture.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, imageTexture.bits());
 
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
@@ -45,21 +48,15 @@ void renderObj::OpenTextura()
 
 }
 
-void renderObj::resizeGL(int w,int h){
-    qDebug() << "Empezando resizeGL()...";
-    glViewport(0, 0, (GLint)w, (GLint)h);        
+void renderObj::resizeGL(int widht,int height){
+
+    glViewport(0, 0,widht, height);
 }
 
 void renderObj::initializeGL(){
-    qDebug() << "Empezando initializeGL()...";
-
-    //Establecemos el color de "fondo"
     glClearColor(0,0,0,0);
-
-    //Buffer-Z
     glEnable(GL_DEPTH_TEST);
 
-    //Activamos luz 0 (blanca), la tomaremos como "luz ambiental" ...
     glEnable(GL_LIGHT0);
     GLfloat light_position0[] = {5.0,5.0,-5.0,1.0};
     glLightfv(GL_LIGHT0,GL_POSITION,light_position0);
@@ -70,12 +67,9 @@ void renderObj::initializeGL(){
     glLightfv(GL_LIGHT0,GL_DIFFUSE,light_diffuse_color0);
     glLightfv(GL_LIGHT0,GL_SPECULAR,light_specular_color0);
 
-
-    //Activamos luz 0 (blanca), la tomaremos como "luz ambiental" ...
     glEnable(GL_LIGHT1);
     GLfloat light_position1[] = {-5.0,5.0,5.0,1.0};
     glLightfv(GL_LIGHT1,GL_POSITION,light_position1);
-    /*Establecemos los colores de la luz (roja)*/
     GLfloat light_ambient_color1[]  = {0.1,0.1,0.1,1.0};
     GLfloat light_diffuse_color1[]  = {0.5,0.5,0.3,1.0};
     GLfloat light_specular_color1[] = {1,1,1,1.0};
@@ -83,21 +77,14 @@ void renderObj::initializeGL(){
     glLightfv(GL_LIGHT1,GL_DIFFUSE,light_diffuse_color1);
     glLightfv(GL_LIGHT1,GL_SPECULAR,light_specular_color1);
 
-
-    // ... la atenuamos para que no se vea tan blanco el resplandor
     GLfloat at[] = {2.0f,2.2f,2.2f};
     glLightfv(GL_LIGHT0,GL_CONSTANT_ATTENUATION,at);    
     glLightfv(GL_LIGHT1,GL_CONSTANT_ATTENUATION,at);
 
-
-    //Le decimos a GL que use cálculos de iluminación
     glEnable(GL_LIGHTING);
 
-    //Habilitamos el color de los objetos
     glEnable(GL_COLOR_MATERIAL);
 
-    //Modelo que vamos a trabajar
-    //Cargamos los vértices y normales del modelo
     fprintf(stderr, "-------- Cargando Modelo -------\n");
     M_Obj.cargarModelo("/usr/bunny.obj");
 
@@ -106,13 +93,13 @@ void renderObj::initializeGL(){
     this->Poligon=false;
     this->Mall=false;
     this->Punt=false;
-    this->Textura=false;
+    this->Texture=false;
     this->RecalMatri=true;
+    this->numTexture=0;
 }
 
 void renderObj::paintGL()
 {    
-    qDebug() << "Empezando paintGL()...";
     RenderObj();
 }
 
@@ -141,13 +128,13 @@ void renderObj::RenderObj()
     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, vObjectCompColor);
 
     /// TEXTURA
-    if(Textura==true)
+    if(Texture==true)
     {        
          glShadeModel(GL_SMOOTH);
 
          glEnable(GL_TEXTURE_2D);
-         OpenTextura();
-         glBindTexture(GL_TEXTURE_2D, texture[0]);
+         OpenTexture();
+         glBindTexture(GL_TEXTURE_2D, texture[numTexture]);
 
 
          glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
@@ -162,11 +149,11 @@ void renderObj::RenderObj()
          glEnable(GL_TEXTURE_GEN_S);
          glEnable(GL_TEXTURE_GEN_T);
 
-                long numberOfFacesVerticesCoords = (M_Obj.getNC()-1) * 9;
-            GLfloat vertices[numberOfFacesVerticesCoords];
-            GLfloat normals[numberOfFacesVerticesCoords];
+                long sizeM = (M_Obj.getNC()-1) * 9;
+            GLfloat Vertx[sizeM];
+            GLfloat Norms[sizeM];
 
-            int verticeNumberControl = 0;
+            int vnum = 0;
 
             vector<QVector3D> V1;
             vector<QVector3D> V2;
@@ -175,9 +162,9 @@ void renderObj::RenderObj()
             vector<QVector3D> N2;
             vector<QVector3D> N3;
             for(int f=0 ; f < M_Obj.getNC() ; f++){
-                V1.push_back(M_Obj.modeloVerticesW[M_Obj.modeloCaras[f].x()-1]);
-                V2.push_back(M_Obj.modeloVerticesW[M_Obj.modeloCaras[f].y()-1]);
-                V3.push_back(M_Obj.modeloVerticesW[M_Obj.modeloCaras[f].z()-1]);
+                V1.push_back(M_Obj.modeloVertxW[M_Obj.modeloCaras[f].x()-1]);
+                V2.push_back(M_Obj.modeloVertxW[M_Obj.modeloCaras[f].y()-1]);
+                V3.push_back(M_Obj.modeloVertxW[M_Obj.modeloCaras[f].z()-1]);
 
                 N1.push_back(M_Obj.modeloNormalesVW[M_Obj.modeloCaras[f].x()-1]);
                 N2.push_back(M_Obj.modeloNormalesVW[M_Obj.modeloCaras[f].y()-1]);
@@ -186,49 +173,49 @@ void renderObj::RenderObj()
                 QVector3D V;
                     V=V1[0];
                     V1.clear();
-                    vertices[verticeNumberControl]   = V.x();
-                    vertices[verticeNumberControl+1] = V.y();
-                    vertices[verticeNumberControl+2] = V.z();
+                    Vertx[vnum]   = V.x();
+                    Vertx[vnum+1] = V.y();
+                    Vertx[vnum+2] = V.z();
 
                     V=V2[0];
                     V2.clear();
-                    vertices[verticeNumberControl+3] = V.x();
-                    vertices[verticeNumberControl+4] = V.y();
-                    vertices[verticeNumberControl+5] = V.z();
+                    Vertx[vnum+3] = V.x();
+                    Vertx[vnum+4] = V.y();
+                    Vertx[vnum+5] = V.z();
 
                     V=V3[0];
                     V3.clear();
-                    vertices[verticeNumberControl+6] = V.x();
-                    vertices[verticeNumberControl+7] = V.y();
-                    vertices[verticeNumberControl+8] = V.z();
+                    Vertx[vnum+6] = V.x();
+                    Vertx[vnum+7] = V.y();
+                    Vertx[vnum+8] = V.z();
 
                  QVector3D N;
                     N=N1[0];
                     N1.clear();
-                    normals[verticeNumberControl]   = N.x();
-                    normals[verticeNumberControl+1] = N.y();
-                    normals[verticeNumberControl+2] = N.z();
+                    Norms[vnum]   = N.x();
+                    Norms[vnum+1] = N.y();
+                    Norms[vnum+2] = N.z();
 
                     N=N2[0];
                     N2.clear();
-                    normals[verticeNumberControl+3] = N.x();
-                    normals[verticeNumberControl+4] = N.y();
-                    normals[verticeNumberControl+5] = N.z();
+                    Norms[vnum+3] = N.x();
+                    Norms[vnum+4] = N.y();
+                    Norms[vnum+5] = N.z();
 
                     N=N3[0];
                     N3.clear();
-                    normals[verticeNumberControl+6] =N.x();
-                    normals[verticeNumberControl+7] =N.y();
-                    normals[verticeNumberControl+8] =N.z();
+                    Norms[vnum+6] =N.x();
+                    Norms[vnum+7] =N.y();
+                    Norms[vnum+8] =N.z();
 
-                    verticeNumberControl += 9;
+                    vnum += 9;
                 }
 
             glEnableClientState(GL_VERTEX_ARRAY);
             glEnableClientState(GL_NORMAL_ARRAY);
 
-            glVertexPointer(3,GL_FLOAT,0,vertices);
-            glNormalPointer(GL_FLOAT,0,normals);
+            glVertexPointer(3,GL_FLOAT,0,Vertx);
+            glNormalPointer(GL_FLOAT,0,Norms);
 
             glDrawArrays(GL_TRIANGLES,0,(M_Obj.getNC()*3));
             glDisableClientState(GL_VERTEX_ARRAY);
@@ -242,12 +229,12 @@ void renderObj::RenderObj()
 
         glShadeModel(GL_FLAT);
 
-               long numberOfFacesVerticesCoords = (M_Obj.getNC()-1) * 9;
+               long sizeM = (M_Obj.getNC()-1) * 9;
 
-           GLfloat vertices[numberOfFacesVerticesCoords];
-           GLfloat normals[numberOfFacesVerticesCoords];
+           GLfloat Vertx[sizeM];
+           GLfloat Norms[sizeM];
 
-           int verticeNumberControl = 0;
+           int vnum = 0;
 
            vector<QVector3D> V1;
            vector<QVector3D> V2;
@@ -257,9 +244,9 @@ void renderObj::RenderObj()
            vector<QVector3D> N3;
 
            for(int f=0 ; f < M_Obj.getNC() ; f++){
-               V1.push_back(M_Obj.modeloVerticesW[M_Obj.modeloCaras[f].x()-1]);
-               V2.push_back(M_Obj.modeloVerticesW[M_Obj.modeloCaras[f].y()-1]);
-               V3.push_back(M_Obj.modeloVerticesW[M_Obj.modeloCaras[f].z()-1]);
+               V1.push_back(M_Obj.modeloVertxW[M_Obj.modeloCaras[f].x()-1]);
+               V2.push_back(M_Obj.modeloVertxW[M_Obj.modeloCaras[f].y()-1]);
+               V3.push_back(M_Obj.modeloVertxW[M_Obj.modeloCaras[f].z()-1]);
 
                N1.push_back(M_Obj.modeloNormalesVW[M_Obj.modeloCaras[f].x()-1]);
                N2.push_back(M_Obj.modeloNormalesVW[M_Obj.modeloCaras[f].y()-1]);
@@ -268,49 +255,49 @@ void renderObj::RenderObj()
                QVector3D V;
                    V=V1[0];
                    V1.clear();
-                   vertices[verticeNumberControl]   = V.x();
-                   vertices[verticeNumberControl+1] = V.y();
-                   vertices[verticeNumberControl+2] = V.z();
+                   Vertx[vnum]   = V.x();
+                   Vertx[vnum+1] = V.y();
+                   Vertx[vnum+2] = V.z();
 
                    V=V2[0];
                    V2.clear();
-                   vertices[verticeNumberControl+3] = V.x();
-                   vertices[verticeNumberControl+4] = V.y();
-                   vertices[verticeNumberControl+5] = V.z();
+                   Vertx[vnum+3] = V.x();
+                   Vertx[vnum+4] = V.y();
+                   Vertx[vnum+5] = V.z();
 
                    V=V3[0];
                    V3.clear();
-                   vertices[verticeNumberControl+6] = V.x();
-                   vertices[verticeNumberControl+7] = V.y();
-                   vertices[verticeNumberControl+8] = V.z();
+                   Vertx[vnum+6] = V.x();
+                   Vertx[vnum+7] = V.y();
+                   Vertx[vnum+8] = V.z();
 
                 QVector3D N;
                    N=N1[0];
                    N1.clear();
-                   normals[verticeNumberControl]   = N.x();
-                   normals[verticeNumberControl+1] = N.y();
-                   normals[verticeNumberControl+2] = N.z();
+                   Norms[vnum]   = N.x();
+                   Norms[vnum+1] = N.y();
+                   Norms[vnum+2] = N.z();
 
                    N=N2[0];
                    N2.clear();
-                   normals[verticeNumberControl+3] = N.x();
-                   normals[verticeNumberControl+4] = N.y();
-                   normals[verticeNumberControl+5] = N.z();
+                   Norms[vnum+3] = N.x();
+                   Norms[vnum+4] = N.y();
+                   Norms[vnum+5] = N.z();
 
                    N=N3[0];
                    N3.clear();
-                   normals[verticeNumberControl+6] =N.x();
-                   normals[verticeNumberControl+7] =N.y();
-                   normals[verticeNumberControl+8] =N.z();
+                   Norms[vnum+6] =N.x();
+                   Norms[vnum+7] =N.y();
+                   Norms[vnum+8] =N.z();
 
-                   verticeNumberControl += 9;
+                   vnum += 9;
                }
 
            glEnableClientState(GL_VERTEX_ARRAY);
            glEnableClientState(GL_NORMAL_ARRAY);
 
-           glVertexPointer(3,GL_FLOAT,0,vertices);
-           glNormalPointer(GL_FLOAT,0,normals);
+           glVertexPointer(3,GL_FLOAT,0,Vertx);
+           glNormalPointer(GL_FLOAT,0,Norms);
            glDrawArrays(GL_TRIANGLES,0,M_Obj.getNC()*3);
            glDisableClientState(GL_VERTEX_ARRAY);
            glDisableClientState(GL_NORMAL_ARRAY);
@@ -322,12 +309,12 @@ void renderObj::RenderObj()
         glPolygonMode(GL_BACK, GL_LINE);
 
 
-               long numberOfFacesVerticesCoords = (M_Obj.getNC()-1) * 9;
+               long sizeM = (M_Obj.getNC()-1) * 9;
 
-           GLfloat vertices[numberOfFacesVerticesCoords];
-           GLfloat normals[numberOfFacesVerticesCoords];
+           GLfloat Vertx[sizeM];
+           GLfloat Norms[sizeM];
 
-           int verticeNumberControl = 0;
+           int vnum = 0;
 
            vector<QVector3D> V1;
            vector<QVector3D> V2;
@@ -337,9 +324,9 @@ void renderObj::RenderObj()
            vector<QVector3D> N3;
 
            for(int f=0 ; f < M_Obj.getNC() ; f++){
-               V1.push_back(M_Obj.modeloVerticesW[M_Obj.modeloCaras[f].x()-1]);
-               V2.push_back(M_Obj.modeloVerticesW[M_Obj.modeloCaras[f].y()-1]);
-               V3.push_back(M_Obj.modeloVerticesW[M_Obj.modeloCaras[f].z()-1]);
+               V1.push_back(M_Obj.modeloVertxW[M_Obj.modeloCaras[f].x()-1]);
+               V2.push_back(M_Obj.modeloVertxW[M_Obj.modeloCaras[f].y()-1]);
+               V3.push_back(M_Obj.modeloVertxW[M_Obj.modeloCaras[f].z()-1]);
 
                N1.push_back(M_Obj.modeloNormalesVW[M_Obj.modeloCaras[f].x()-1]);
                N2.push_back(M_Obj.modeloNormalesVW[M_Obj.modeloCaras[f].y()-1]);
@@ -348,50 +335,50 @@ void renderObj::RenderObj()
                QVector3D V;
                    V=V1[0];
                    V1.clear();
-                   vertices[verticeNumberControl]   = V.x();
-                   vertices[verticeNumberControl+1] = V.y();
-                   vertices[verticeNumberControl+2] = V.z();
+                   Vertx[vnum]   = V.x();
+                   Vertx[vnum+1] = V.y();
+                   Vertx[vnum+2] = V.z();
 
 
                    V=V2[0];
                    V2.clear();
-                   vertices[verticeNumberControl+3] = V.x();
-                   vertices[verticeNumberControl+4] = V.y();
-                   vertices[verticeNumberControl+5] = V.z();
+                   Vertx[vnum+3] = V.x();
+                   Vertx[vnum+4] = V.y();
+                   Vertx[vnum+5] = V.z();
 
                    V=V3[0];
                    V3.clear();
-                   vertices[verticeNumberControl+6] = V.x();
-                   vertices[verticeNumberControl+7] = V.y();
-                   vertices[verticeNumberControl+8] = V.z();
+                   Vertx[vnum+6] = V.x();
+                   Vertx[vnum+7] = V.y();
+                   Vertx[vnum+8] = V.z();
 
                 QVector3D N;
                    N=N1[0];
                    N1.clear();
-                   normals[verticeNumberControl]   = N.x();
-                   normals[verticeNumberControl+1] = N.y();
-                   normals[verticeNumberControl+2] = N.z();
+                   Norms[vnum]   = N.x();
+                   Norms[vnum+1] = N.y();
+                   Norms[vnum+2] = N.z();
 
                    N=N2[0];
                    N2.clear();
-                   normals[verticeNumberControl+3] = N.x();
-                   normals[verticeNumberControl+4] = N.y();
-                   normals[verticeNumberControl+5] = N.z();
+                   Norms[vnum+3] = N.x();
+                   Norms[vnum+4] = N.y();
+                   Norms[vnum+5] = N.z();
 
                    N=N3[0];
                    N3.clear();
-                   normals[verticeNumberControl+6] =N.x();
-                   normals[verticeNumberControl+7] =N.y();
-                   normals[verticeNumberControl+8] =N.z();
+                   Norms[vnum+6] =N.x();
+                   Norms[vnum+7] =N.y();
+                   Norms[vnum+8] =N.z();
 
-                   verticeNumberControl += 9;
+                   vnum += 9;
                }
 
            glEnableClientState(GL_VERTEX_ARRAY);
            glEnableClientState(GL_NORMAL_ARRAY);
 
-           glVertexPointer(3,GL_FLOAT,0,vertices);
-           glNormalPointer(GL_FLOAT,0,normals);
+           glVertexPointer(3,GL_FLOAT,0,Vertx);
+           glNormalPointer(GL_FLOAT,0,Norms);
            glDrawArrays(GL_POINTS,0,M_Obj.getNC()*3);
            glPolygonMode(GL_FRONT, GL_FILL);
            glPolygonMode(GL_BACK, GL_FILL);
@@ -405,12 +392,12 @@ void renderObj::RenderObj()
         glPolygonMode(GL_BACK, GL_LINE);
         glShadeModel(GL_FLAT);
 
-               long numberOfFacesVerticesCoords = (M_Obj.getNC()-1) * 9;
+               long sizeM = (M_Obj.getNC()-1) * 9;
 
-           GLfloat vertices[numberOfFacesVerticesCoords];
-           GLfloat normals[numberOfFacesVerticesCoords];
+           GLfloat Vertx[sizeM];
+           GLfloat Norms[sizeM];
 
-           int verticeNumberControl = 0;
+           int vnum = 0;
 
            vector<QVector3D> V1;
            vector<QVector3D> V2;
@@ -419,9 +406,9 @@ void renderObj::RenderObj()
            vector<QVector3D> N2;
            vector<QVector3D> N3;
            for(int f=0 ; f < M_Obj.getNC() ; f++){
-               V1.push_back(M_Obj.modeloVerticesW[M_Obj.modeloCaras[f].x()-1]);
-               V2.push_back(M_Obj.modeloVerticesW[M_Obj.modeloCaras[f].y()-1]);
-               V3.push_back(M_Obj.modeloVerticesW[M_Obj.modeloCaras[f].z()-1]);
+               V1.push_back(M_Obj.modeloVertxW[M_Obj.modeloCaras[f].x()-1]);
+               V2.push_back(M_Obj.modeloVertxW[M_Obj.modeloCaras[f].y()-1]);
+               V3.push_back(M_Obj.modeloVertxW[M_Obj.modeloCaras[f].z()-1]);
 
                N1.push_back(M_Obj.modeloNormalesVW[M_Obj.modeloCaras[f].x()-1]);
                N2.push_back(M_Obj.modeloNormalesVW[M_Obj.modeloCaras[f].y()-1]);
@@ -430,48 +417,48 @@ void renderObj::RenderObj()
                QVector3D V;
                    V=V1[0];
                    V1.clear();
-                   vertices[verticeNumberControl]   = V.x();
-                   vertices[verticeNumberControl+1] = V.y();
-                   vertices[verticeNumberControl+2] = V.z();
+                   Vertx[vnum]   = V.x();
+                   Vertx[vnum+1] = V.y();
+                   Vertx[vnum+2] = V.z();
 
                    V=V2[0];
                    V2.clear();
-                   vertices[verticeNumberControl+3] = V.x();
-                   vertices[verticeNumberControl+4] = V.y();
-                   vertices[verticeNumberControl+5] = V.z();
+                   Vertx[vnum+3] = V.x();
+                   Vertx[vnum+4] = V.y();
+                   Vertx[vnum+5] = V.z();
 
                    V=V3[0];
                    V3.clear();
-                   vertices[verticeNumberControl+6] = V.x();
-                   vertices[verticeNumberControl+7] = V.y();
-                   vertices[verticeNumberControl+8] = V.z();
+                   Vertx[vnum+6] = V.x();
+                   Vertx[vnum+7] = V.y();
+                   Vertx[vnum+8] = V.z();
 
                 QVector3D N;
                    N=N1[0];
                    N1.clear();
-                   normals[verticeNumberControl]   = N.x();
-                   normals[verticeNumberControl+1] = N.y();
-                   normals[verticeNumberControl+2] = N.z();
+                   Norms[vnum]   = N.x();
+                   Norms[vnum+1] = N.y();
+                   Norms[vnum+2] = N.z();
 
                    N=N2[0];
                    N2.clear();
-                   normals[verticeNumberControl+3] = N.x();
-                   normals[verticeNumberControl+4] = N.y();
-                   normals[verticeNumberControl+5] = N.z();
+                   Norms[vnum+3] = N.x();
+                   Norms[vnum+4] = N.y();
+                   Norms[vnum+5] = N.z();
 
                    N=N3[0];
                    N3.clear();
-                   normals[verticeNumberControl+6] =N.x();
-                   normals[verticeNumberControl+7] =N.y();
-                   normals[verticeNumberControl+8] =N.z();
+                   Norms[vnum+6] =N.x();
+                   Norms[vnum+7] =N.y();
+                   Norms[vnum+8] =N.z();
 
-                   verticeNumberControl += 9;
+                   vnum += 9;
                }
 
            glEnableClientState(GL_VERTEX_ARRAY);
            glEnableClientState(GL_NORMAL_ARRAY);
-           glVertexPointer(3,GL_FLOAT,0,vertices);
-           glNormalPointer(GL_FLOAT,0,normals);
+           glVertexPointer(3,GL_FLOAT,0,Vertx);
+           glNormalPointer(GL_FLOAT,0,Norms);
 
            glDrawArrays(GL_TRIANGLES,0,M_Obj.getNC()*3);
            glPolygonMode(GL_FRONT, GL_FILL);
@@ -485,21 +472,22 @@ void renderObj::RenderObj()
     {
          glShadeModel(GL_SMOOTH);
 
-                long numberOfFacesVerticesCoords = (M_Obj.getNC()-1) * 9;
-            GLfloat vertices[numberOfFacesVerticesCoords];
-            GLfloat normals[numberOfFacesVerticesCoords];
+            long int sizeM = (M_Obj.getNC()-1) * 9;
+            GLfloat Vertx[sizeM];
+            GLfloat Norms[sizeM];
 
-            int verticeNumberControl = 0;
+            long int vnum = 0;
             vector<QVector3D> V1;
             vector<QVector3D> V2;
             vector<QVector3D> V3;
             vector<QVector3D> N1;
             vector<QVector3D> N2;
             vector<QVector3D> N3;
-            for(int f=0 ; f < M_Obj.getNC() ; f++){
-                V1.push_back(M_Obj.modeloVerticesW[M_Obj.modeloCaras[f].x()-1]);
-                V2.push_back(M_Obj.modeloVerticesW[M_Obj.modeloCaras[f].y()-1]);
-                V3.push_back(M_Obj.modeloVerticesW[M_Obj.modeloCaras[f].z()-1]);
+
+            for(long int f=0 ; f < M_Obj.getNC() ; f++){
+                V1.push_back(M_Obj.modeloVertxW[M_Obj.modeloCaras[f].x()-1]);
+                V2.push_back(M_Obj.modeloVertxW[M_Obj.modeloCaras[f].y()-1]);
+                V3.push_back(M_Obj.modeloVertxW[M_Obj.modeloCaras[f].z()-1]);
 
                 N1.push_back(M_Obj.modeloNormalesVW[M_Obj.modeloCaras[f].x()-1]);
                 N2.push_back(M_Obj.modeloNormalesVW[M_Obj.modeloCaras[f].y()-1]);
@@ -508,46 +496,46 @@ void renderObj::RenderObj()
                 QVector3D V;
                     V=V1[0];
                     V1.clear();
-                    vertices[verticeNumberControl]   = V.x();
-                    vertices[verticeNumberControl+1] = V.y();
-                    vertices[verticeNumberControl+2] = V.z();
+                    Vertx[vnum]   = V.x();
+                    Vertx[vnum+1] = V.y();
+                    Vertx[vnum+2] = V.z();
                     V=V2[0];
                     V2.clear();
-                    vertices[verticeNumberControl+3] = V.x();
-                    vertices[verticeNumberControl+4] = V.y();
-                    vertices[verticeNumberControl+5] = V.z();
+                    Vertx[vnum+3] = V.x();
+                    Vertx[vnum+4] = V.y();
+                    Vertx[vnum+5] = V.z();
 
                     V=V3[0];
                     V3.clear();
-                    vertices[verticeNumberControl+6] = V.x();
-                    vertices[verticeNumberControl+7] = V.y();
-                    vertices[verticeNumberControl+8] = V.z();
+                    Vertx[vnum+6] = V.x();
+                    Vertx[vnum+7] = V.y();
+                    Vertx[vnum+8] = V.z();
 
                  QVector3D N;
                     N=N1[0];
                     N1.clear();
-                    normals[verticeNumberControl]   = N.x();
-                    normals[verticeNumberControl+1] = N.y();
-                    normals[verticeNumberControl+2] = N.z();
+                    Norms[vnum]   = N.x();
+                    Norms[vnum+1] = N.y();
+                    Norms[vnum+2] = N.z();
 
                     N=N2[0];
                     N2.clear();
-                    normals[verticeNumberControl+3] = N.x();
-                    normals[verticeNumberControl+4] = N.y();
-                    normals[verticeNumberControl+5] = N.z();
+                    Norms[vnum+3] = N.x();
+                    Norms[vnum+4] = N.y();
+                    Norms[vnum+5] = N.z();
 
                     N=N3[0];
                     N3.clear();
-                    normals[verticeNumberControl+6] =N.x();
-                    normals[verticeNumberControl+7] =N.y();
-                    normals[verticeNumberControl+8] =N.z();
+                    Norms[vnum+6] =N.x();
+                    Norms[vnum+7] =N.y();
+                    Norms[vnum+8] =N.z();
 
-                    verticeNumberControl += 9;
+                    vnum += 9;
                 }
             glEnableClientState(GL_VERTEX_ARRAY);
             glEnableClientState(GL_NORMAL_ARRAY);
-            glVertexPointer(3,GL_FLOAT,0,vertices);
-            glNormalPointer(GL_FLOAT,0,normals);
+            glVertexPointer(3,GL_FLOAT,0,Vertx);
+            glNormalPointer(GL_FLOAT,0,Norms);
             glDrawArrays(GL_TRIANGLES,0,(M_Obj.getNC()*3));
             glDisableClientState(GL_VERTEX_ARRAY);
             glDisableClientState(GL_NORMAL_ARRAY);
