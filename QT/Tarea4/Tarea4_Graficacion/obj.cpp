@@ -19,7 +19,7 @@ ModeloOBJ::ModeloOBJ()
 
 void ModeloOBJ::cargarModelo(const char *path)
 {
-   ifstream file("/home/noryab/Graficacion/QT/Tarea4/Tarea4_Graficacion/bunny.obj");
+    ifstream file(path);
 
     string str;
     long int vNum = 0;

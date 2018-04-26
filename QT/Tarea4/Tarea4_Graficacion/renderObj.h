@@ -6,7 +6,6 @@
 #include <QtGui>
 #include <QtCore>
 #include <iostream>
-#include "ilumination.h"
 #include "obj.h"
 
 using namespace std;

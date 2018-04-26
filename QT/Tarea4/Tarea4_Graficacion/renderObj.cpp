@@ -58,35 +58,35 @@ void renderObj::initializeGL(){
     glEnable(GL_DEPTH_TEST);
 
     glEnable(GL_LIGHT0);
-    GLfloat light_position0[] = {5.0,5.0,-5.0,1.0};
-    glLightfv(GL_LIGHT0,GL_POSITION,light_position0);
-    GLfloat light_ambient_color0[]  = {0.1,0.1,0.1,1.0};
-    GLfloat light_diffuse_color0[]  = {0.1,0.7,0.7,1.0};
-    GLfloat light_specular_color0[] = {0.5,0.5,0.5,1.0};
-    glLightfv(GL_LIGHT0,GL_AMBIENT,light_ambient_color0);
-    glLightfv(GL_LIGHT0,GL_DIFFUSE,light_diffuse_color0);
-    glLightfv(GL_LIGHT0,GL_SPECULAR,light_specular_color0);
+    GLfloat light_Pos0[4] = {5.0,5.0,-5.0,1.0};
+    glLightfv(GL_LIGHT0,GL_POSITION,light_Pos0);
+    GLfloat light_ambient0[4]  = {0.1,0.1,0.1,1.0};
+    GLfloat light_diffuse0[4]  = {0.1,0.7,0.7,1.0};
+    GLfloat light_specular0[4] = {0.5,0.5,0.5,1.0};
+    glLightfv(GL_LIGHT0,GL_AMBIENT,light_ambient0);
+    glLightfv(GL_LIGHT0,GL_DIFFUSE,light_diffuse0);
+    glLightfv(GL_LIGHT0,GL_SPECULAR,light_specular0);
 
     glEnable(GL_LIGHT1);
-    GLfloat light_position1[] = {-5.0,5.0,5.0,1.0};
-    glLightfv(GL_LIGHT1,GL_POSITION,light_position1);
-    GLfloat light_ambient_color1[]  = {0.1,0.1,0.1,1.0};
-    GLfloat light_diffuse_color1[]  = {0.5,0.5,0.3,1.0};
-    GLfloat light_specular_color1[] = {1,1,1,1.0};
-    glLightfv(GL_LIGHT1,GL_AMBIENT,light_ambient_color1);
-    glLightfv(GL_LIGHT1,GL_DIFFUSE,light_diffuse_color1);
-    glLightfv(GL_LIGHT1,GL_SPECULAR,light_specular_color1);
+    GLfloat light_Pos1[4] = {-5.0,5.0,5.0,1.0};
+    glLightfv(GL_LIGHT1,GL_POSITION,light_Pos1);
+    GLfloat light_ambient1[4]  = {0.1,0.1,0.1,1.0};
+    GLfloat light_diffuse1[4]  = {0.5,0.5,0.3,1.0};
+    GLfloat light_specular1[4] = {1,1,1,1.0};
+    glLightfv(GL_LIGHT1,GL_AMBIENT,light_ambient1);
+    glLightfv(GL_LIGHT1,GL_DIFFUSE,light_diffuse1);
+    glLightfv(GL_LIGHT1,GL_SPECULAR,light_specular1);
 
-    GLfloat at[] = {2.0f,2.2f,2.2f};
-    glLightfv(GL_LIGHT0,GL_CONSTANT_ATTENUATION,at);    
-    glLightfv(GL_LIGHT1,GL_CONSTANT_ATTENUATION,at);
+    GLfloat attenuation[3] = {2.0f,2.2f,2.2f};
+    glLightfv(GL_LIGHT0,GL_CONSTANT_ATTENUATION,attenuation);
+    glLightfv(GL_LIGHT1,GL_CONSTANT_ATTENUATION,attenuation);
 
     glEnable(GL_LIGHTING);
 
     glEnable(GL_COLOR_MATERIAL);
 
     fprintf(stderr, "-------- Cargando Modelo -------\n");
-    M_Obj.cargarModelo("/usr/bunny.obj");
+    M_Obj.cargarModelo("/home/noryab/Graficacion/QT/Tarea4/Tarea4_Graficacion/bunny.obj");
 
     this->Gouraud=true;
     this->Phong=false;
@@ -109,12 +109,15 @@ void renderObj::RenderObj()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-
-    gluPerspective(80,(float)width()/height(),1.5,40);
+    GLdouble fovy=70;
+    GLdouble aspect=(float)width()/height();
+    GLdouble zNear=1;
+    GLdouble zFar=10;
+    gluPerspective(fovy,aspect,zNear,zFar);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-
     gluLookAt(0.0,0.0,5.0,  0.0,1.0,0.0,  0,1,0);
+
     if(BoolRot)
     {
         glRotatef(Angle_X,1,0,0);
@@ -123,9 +126,9 @@ void renderObj::RenderObj()
     }
     BoolRot=false;
 
-    GLfloat vObjectCompColor[] = {0.5,0.5,0.5,1.0};
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, vObjectCompColor);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, vObjectCompColor);
+    GLfloat oColor[4] = {0.5,0.5,0.5,1.0};
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, oColor);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, oColor);
 
     /// TEXTURA
     if(Texture==true)
