@@ -21,7 +21,7 @@
 using namespace std;
 
 //Recursividad de los rayos
-int    depthMax = 5;
+int    depthMax =2;
 
     QVector3D Tracing(vector<Object*> &Scene,vector<Light*> light_sources,const QVector3D &rayorig,const QVector3D &raydir,const int depth);
 
@@ -138,16 +138,14 @@ int    depthMax = 5;
                                                    distance_to_light.y()*distance_to_light.y()+
                                                    distance_to_light.z()*distance_to_light.z());
             // Vector Reflejado
-            QVector3D h =(2 * QVector3D::dotProduct(InterPoint_normal,lightDirection)* InterPoint_normal -lightDirection).normalized();
+            QVector3D h =(2 * QVector3D::dotProduct(InterPoint_normal,raydir)* InterPoint_normal -raydir).normalized();
             // Vector de origen
             // Vector Reflejado
             QVector3D raydirR = (raydir - 2 * InterPoint_normal * QVector3D::dotProduct(raydir,InterPoint_normal) ).normalized();
-            QVector3D rayorigR=InterPoint;// + InterPoint_normal*1e-5;
-
-            // Vector hacia la luz
+            QVector3D rayorigR=InterPoint + InterPoint_normal*1e-4;
 
             // Rayo Recursivo
-                IntColor =Tracing(Scene,light_sources,rayorigR, h, depth + 1)*Scene.at(idxIntnear)->getDiff();
+                IntColor =Tracing(Scene,light_sources,rayorigR, raydirR, depth + 1);
                 /// Shadows
                 vector<double> intersectionsShadows;
                 for(int numObj=0;numObj<Scene.size();numObj++)
@@ -155,31 +153,19 @@ int    depthMax = 5;
                     intersectionsShadows.push_back(Scene.at(numObj)->intersect(InterPoint,lightDirection));
                 }
                 int idxIntShadow = winningObjectIndex(intersectionsShadows);
-                /*    if (intersectionsShadows.at(idxIntShadow) <= distance_to_light_magnitude || idxIntnear!=idxIntShadow) {
-                        IntColor+= (1/distance_to_light_magnitude)*Scene.at(idxIntnear)->getColor() * std::max(float(0.0),QVector3D::dotProduct(InterPoint_normal,lightDirection)) * light_sources.at(0)->getLightColor();
-                    }else{
-                        float NdotView = std::max(float(0.0), QVector3D::dotProduct(InterPoint_normal,-raydirR));
-                        IntColor += Scene.at(idxIntnear)->getSPec()*Scene.at(idxIntnear)->getColor()*NdotView;
-                    }*/
-                if (intersectionsShadows.at(idxIntShadow) <= distance_to_light_magnitude  && idxIntnear!=idxIntShadow) {
-                    //QVector3D h=2*QVector3D::dotProduct(InterPoint_normal,lightDirection)*InterPoint_normal-lightDirection;
-                    IntColor+=(depth/distance_to_light_magnitude)*
-                             (Scene.at(idxIntnear)->getAmb()*light_sources.at(0)->getLightColor() +
-                              Scene.at(idxIntnear)->getDiff()*Scene.at(idxIntnear)->getColor()*QVector3D::dotProduct(InterPoint_normal,lightDirection) +
-                              Scene.at(idxIntnear)->getSpec()*Scene.at(idxIntnear)->getColor()*pow(QVector3D::dotProduct(rayorig,h),4)-lightDirection );
-                    float NdotView = std::max(float(0.0), QVector3D::dotProduct(InterPoint_normal,h));
-                    IntColor=(IntColor/depth)*NdotView;
-                }else{
-                    //QVector3D h=2*QVector3D::dotProduct(InterPoint_normal,lightDirection)*InterPoint_normal-lightDirection;
-                    IntColor+=Scene.at(idxIntnear)->getAmb()*light_sources.at(0)->getLightColor() +
-                              Scene.at(idxIntnear)->getDiff()*Scene.at(idxIntnear)->getColor()*QVector3D::dotProduct(InterPoint_normal,lightDirection) +
-                              Scene.at(idxIntnear)->getSpec()*Scene.at(idxIntnear)->getColor()*pow(QVector3D::dotProduct(rayorig,h),4)-lightDirection ;
-                    float NdotView = std::max(float(0.0), QVector3D::dotProduct(InterPoint_normal,h));
-                    IntColor=(IntColor/depth)*NdotView;
-                }
 
-/*                float NdotView = std::max(float(0.0), QVector3D::dotProduct(InterPoint_normal,-h));
-                IntColor += (Scene.at(idxIntnear)->getSpec()*Scene.at(idxIntnear)->getColor() * NdotView);*/
+                if (intersectionsShadows.at(idxIntShadow) <= distance_to_light_magnitude  && idxIntnear!=idxIntShadow) {
+                    h =(2 * QVector3D::dotProduct(InterPoint_normal,lightDirection)* InterPoint_normal -lightDirection).normalized();
+                    IntColor+=(depth/distance_to_light_magnitude)*
+                             (Scene.at(idxIntnear)->getDiff()*Scene.at(idxIntnear)->getColor()*pow(QVector3D::dotProduct(-raydir,h),4) );
+                    float NdotView = std::max(float(0.0), QVector3D::dotProduct(InterPoint_normal,-raydir));
+                    IntColor=(IntColor)*NdotView;
+                }else{
+                    h =(2 * QVector3D::dotProduct(InterPoint_normal,lightDirection)* InterPoint_normal -lightDirection).normalized();
+                    IntColor+=Scene.at(idxIntnear)->getDiff()*Scene.at(idxIntnear)->getColor()*pow(QVector3D::dotProduct(-raydir,h),4) ;
+                    float NdotView = std::max(float(0.0), QVector3D::dotProduct(InterPoint_normal,-raydir));
+                    IntColor=(IntColor)*NdotView;
+                }
         }
         if(depthMax>depth && Scene.at(idxIntnear)->getSpec()>0 )
         {
@@ -196,10 +182,10 @@ int    depthMax = 5;
             QVector3D lightDirection = light_sources.at(0)->getLightPosition() - InterPoint;
             // Vector Reflejado
             QVector3D raydirR = (raydir - 2 * InterPoint_normal * QVector3D::dotProduct(raydir,InterPoint_normal) ).normalized();
-            QVector3D rayorigR=InterPoint;// + InterPoint_normal*1e-5;
-            QVector3D h=2*QVector3D::dotProduct(InterPoint_normal,lightDirection)*InterPoint_normal-lightDirection;
+            QVector3D rayorigR=InterPoint + InterPoint_normal*1e-5;
+            QVector3D h=(2*QVector3D::dotProduct(InterPoint_normal,raydir)*InterPoint_normal-raydir).normalized();
             // Rayo Recursivo
-            IntColor =Tracing(Scene,light_sources,rayorigR, h, depth + 1)*Scene.at(idxIntnear)->getSpec();
+            IntColor =Tracing(Scene,light_sources,rayorigR, raydirR, depth + 1);
 
             /// Shadows
             vector<double> intersectionsShadows;
@@ -213,30 +199,19 @@ int    depthMax = 5;
                                                    distance_to_light.y()*distance_to_light.y()+
                                                    distance_to_light.z()*distance_to_light.z());
             if (intersectionsShadows.at(idxIntShadow) <= distance_to_light_magnitude  && idxIntnear!=idxIntShadow) {
-                //QVector3D h=2*QVector3D::dotProduct(InterPoint_normal,lightDirection)*InterPoint_normal-lightDirection;
-                IntColor+=(1/distance_to_light_magnitude)*
-                         (Scene.at(idxIntnear)->getAmb()*light_sources.at(0)->getLightColor() +
-                          Scene.at(idxIntnear)->getDiff()*Scene.at(idxIntnear)->getColor()*std::max(float(0.0),QVector3D::dotProduct(InterPoint_normal,lightDirection)) +
-                          Scene.at(idxIntnear)->getSpec()*Scene.at(idxIntnear)->getColor()*pow(QVector3D::dotProduct(rayorig,h),4)-lightDirection );
-                float NdotView = std::max(float(0.0), QVector3D::dotProduct(InterPoint_normal,h));
-                IntColor=(IntColor/depth)*NdotView;
+                h =(2 * QVector3D::dotProduct(InterPoint_normal,lightDirection)* InterPoint_normal -lightDirection).normalized();
+                IntColor+=(1/distance_to_light_magnitude)*Scene.at(idxIntnear)->getDiff()*Scene.at(idxIntnear)->getColor()*pow(QVector3D::dotProduct(-raydir,h),4) ;
+                float NdotView = std::max(float(0.0), QVector3D::dotProduct(InterPoint_normal,-raydir));
+                IntColor=(IntColor)*NdotView;
 
             }else{
-                //QVector3D h=2*QVector3D::dotProduct(InterPoint_normal,lightDirection)*InterPoint_normal-lightDirection;
-                IntColor+=Scene.at(idxIntnear)->getAmb()*light_sources.at(0)->getLightColor() +
-                          Scene.at(idxIntnear)->getDiff()*Scene.at(idxIntnear)->getColor()*std::max(float(0.0),QVector3D::dotProduct(InterPoint_normal,lightDirection)) +
-                          Scene.at(idxIntnear)->getSpec()*Scene.at(idxIntnear)->getColor()*pow(QVector3D::dotProduct(rayorig,h),4)-lightDirection ;
-                float NdotView = std::max(float(0.0), QVector3D::dotProduct(InterPoint_normal,h));
-                IntColor=(IntColor/depth)*NdotView;
+                h =(2 * QVector3D::dotProduct(InterPoint_normal,lightDirection)* InterPoint_normal -lightDirection).normalized();
+                IntColor+=Scene.at(idxIntnear)->getDiff()*Scene.at(idxIntnear)->getColor()*pow(QVector3D::dotProduct(-raydir,h),4) ;
+                float NdotView = std::max(float(0.0), QVector3D::dotProduct(InterPoint_normal,-raydir));
+                IntColor=(IntColor)*NdotView;
             }
-
-/*                if (intersectionsShadows.at(idxIntShadow) < distance_to_light_magnitude || idxIntnear!=idxIntShadow) {
-                    IntColor+= (1/distance_to_light_magnitude)*Scene.at(idxIntnear)->getColor() * std::max(float(0.0),QVector3D::dotProduct(InterPoint_normal,lightDirection)) * light_sources.at(0)->getLightColor();
-                }else
-                {
-                    float NdotView = std::max(float(0.0), QVector3D::dotProduct(InterPoint_normal,-raydir));
-                    IntColor += Scene.at(idxIntnear)->getSpec()*Scene.at(idxIntnear)->getColor()*NdotView;
-                }*/
+            /*float NdotView = std::max(float(0.0), QVector3D::dotProduct(InterPoint_normal,-raydir));
+            IntColor += (Scene.at(idxIntnear)->getSpec()*Scene.at(idxIntnear)->getColor() * NdotView);*/
         }
         else
         {
@@ -245,9 +220,15 @@ int    depthMax = 5;
           // Normal del punto intersectado
             QVector3D InterPoint_normal;
             Scene.at(idxIntnear)->getNormal(InterPoint,InterPoint_normal);
+            QVector3D raydirR = (raydir - 2 * InterPoint_normal * QVector3D::dotProduct(raydir,InterPoint_normal) ).normalized();
 
             QVector3D lightDirection = light_sources.at(0)->getLightPosition() - InterPoint;
             lightDirection.normalize();
+            if (QVector3D::dotProduct(-raydir,InterPoint_normal) < 0)
+            {
+                InterPoint_normal = InterPoint_normal;
+            }
+
 
           /// Shadows
             QVector3D distance_to_light = (light_sources.at(0)->getLightPosition()-InterPoint);
@@ -265,18 +246,17 @@ int    depthMax = 5;
               QVector3D h=2*QVector3D::dotProduct(InterPoint_normal,lightDirection)*InterPoint_normal-lightDirection;
               IntColor=(1/distance_to_light_magnitude)*
                        (Scene.at(idxIntnear)->getAmb()*light_sources.at(0)->getLightColor() +
-                        Scene.at(idxIntnear)->getDiff()*Scene.at(idxIntnear)->getColor()*std::max(float(0.0),QVector3D::dotProduct(InterPoint_normal,lightDirection)) +
-                        Scene.at(idxIntnear)->getSpec()*Scene.at(idxIntnear)->getColor()*pow(QVector3D::dotProduct(rayorig,h),4)-lightDirection );
-              float NdotView = std::max(float(0.0), QVector3D::dotProduct(InterPoint_normal,h));
-              IntColor=(IntColor/depth)*NdotView;
+                        Scene.at(idxIntnear)->getDiff()*Scene.at(idxIntnear)->getColor()*QVector3D::dotProduct(InterPoint_normal,lightDirection)+
+                        Scene.at(idxIntnear)->getDiff()*Scene.at(idxIntnear)->getColor()*pow(QVector3D::dotProduct(-raydir,h),4) );
+              float NdotView = std::max(float(0.0), QVector3D::dotProduct(InterPoint_normal,-raydir));
+              IntColor=(IntColor)*NdotView;
           }else{
               QVector3D h=2*QVector3D::dotProduct(InterPoint_normal,lightDirection)*InterPoint_normal-lightDirection;
               IntColor=Scene.at(idxIntnear)->getAmb()*light_sources.at(0)->getLightColor() +
-                       Scene.at(idxIntnear)->getDiff()*Scene.at(idxIntnear)->getColor()*std::max(float(0.0),QVector3D::dotProduct(InterPoint_normal,lightDirection)) +
-                       Scene.at(idxIntnear)->getSpec()*Scene.at(idxIntnear)->getColor()*pow(QVector3D::dotProduct(rayorig,h),4)-lightDirection ;
-              float NdotView = std::max(float(0.0), QVector3D::dotProduct(InterPoint_normal,h));
-              IntColor=(IntColor/depth);
-
+                       Scene.at(idxIntnear)->getDiff()*Scene.at(idxIntnear)->getColor()*QVector3D::dotProduct(InterPoint_normal,lightDirection) +
+                       Scene.at(idxIntnear)->getDiff()*Scene.at(idxIntnear)->getColor()*pow(QVector3D::dotProduct(-raydir,h),4) ;
+              float NdotView = std::max(float(0.0), QVector3D::dotProduct(InterPoint_normal,-raydir));
+              IntColor=(IntColor)*NdotView;
           }
         }
         double alllight = IntColor.x() + IntColor.y() + IntColor.z();
@@ -308,8 +288,8 @@ int    depthMax = 5;
         // Creación de Escena
             //Build(Scene);
             // Colores de objetos, paredes, pisos y otros
-                QVector3D CSphere_Speculate (0.8, 0.85, 0.8);
-                QVector3D CSphere_Diffuse (0.6, 0.6, 0.6);
+                QVector3D CSphere_Speculate (0.8, 0.95, 0.8);
+                QVector3D CSphere_Diffuse (0.7, 0.6, 0.6);
 
                 QVector3D CLeft_Wall (0.905, 0.145, 0.07);
                 QVector3D CRight_Wall (0.156, 0.447, 0.2);
@@ -321,19 +301,19 @@ int    depthMax = 5;
 
                 QVector3D Gray (0.5, 0.5, 0.5);
                 QVector3D Black (0, 0, 0);
-                QVector3D White(0.5, 0.5, 0.5);
+                QVector3D White(0.8, 0.8, 0.8);
 
-                QVector3D light_position (0,2.0,0.5);
+                QVector3D light_position (0,2.2,1);
                 Light scene_light (light_position, White);
                 vector<Light*> light_sources;
                 light_sources.push_back(dynamic_cast<Light*>(&scene_light));
 
                 //Sphere::Sphere (QVector3D _Center, float _Radius, QVector3D _Color,float _Refl,float _Spec,float _Diff)
-                float _Amb=0.1;
-                float _Spec=0.5;
-                float _Diff=0.9;
+                float _Amb=0.2;
+                float _Spec=0.7;
+                float _Diff=0.7;
                 // Objetos de Escena
-                QVector3D Sphere_Location_Speculate (-0.5, 0.6, 2);
+                QVector3D Sphere_Location_Speculate (-0.5, 0.6, 1.8);
                 QVector3D Sphere_Location_Diffuse   (0.6, 0.5, 1.6);
                 Sphere Scene_Sphere_S (Sphere_Location_Speculate, 0.6, CSphere_Speculate,_Amb,0,_Spec);
                 Sphere Scene_Sphere_D (Sphere_Location_Diffuse, 0.5, CSphere_Diffuse,_Amb,_Diff,0);
